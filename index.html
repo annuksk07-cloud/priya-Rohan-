@@ -931,12 +931,18 @@
         </div>
       </div>
     </div>
-    <div class="diya-text-container">
-      <div class="diya-line1" id="diya-line1">Sitaaron ne tay kiya tha —</div>
-      <div class="diya-line2" id="diya-line2">aaj woh waqt aa gaya hai</div>
-      <div class="diya-line3" id="diya-line3">— Priya &amp; Rohan —</div>
-      <div class="diya-dots" id="diya-dots">&bull; &bull; &bull;</div>
     </div>
+  </div>
+  <div id="screen-1" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9000; background: #000; display: none; opacity: 0; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s ease; color: #C9A96E; font-family: 'Cormorant Garamond', serif; text-align: center;">
+    <div style="font-size: 24px; font-style: italic; margin-bottom: 16px; opacity: 0; transform: translateY(20px); transition: all 1s ease;" id="s1-t1">Sitaaron ne tay kiya tha —</div>
+    <div style="font-size: 24px; font-style: italic; margin-bottom: 40px; opacity: 0; transform: translateY(20px); transition: all 1s ease 0.5s;" id="s1-t2">aaj woh waqt aa gaya hai</div>
+    <button id="btn-reveal" style="padding: 12px 32px; background: transparent; border: 1px solid #C9A96E; color: #C9A96E; font-family: 'Lato', sans-serif; letter-spacing: 2px; font-size: 12px; cursor: pointer; transition: 0.3s ease; opacity: 0; transform: translateY(20px); transition: all 1s ease 1s;">REVEAL THE DATE</button>
+  </div>
+
+  <div id="screen-2" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 8000; background: #000; display: none; opacity: 0; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s ease; color: #C9A96E; font-family: 'Playfair Display', serif; text-align: center;">
+    <div style="font-size: 48px; margin-bottom: 24px; background: linear-gradient(135deg, #C9A96E, #fff8e7, #C9A96E); -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: shimmer 5s linear infinite; opacity: 0; transform: scale(0.9); transition: all 1s ease;" id="s2-t1">12 &bull; 12 &bull; 2026</div>
+    <div style="font-size: 24px; font-family: 'Cormorant Garamond', serif; font-style: italic; margin-bottom: 40px; color: rgba(255,255,255,0.7); opacity: 0; transform: translateY(20px); transition: all 1s ease 0.5s;" id="s2-t2">— Priya &amp; Rohan —</div>
+    <button id="btn-enter" style="padding: 12px 32px; background: #C9A96E; border: none; color: #000; font-family: 'Lato', sans-serif; letter-spacing: 2px; font-size: 12px; font-weight: bold; cursor: pointer; transition: 0.3s ease; opacity: 0; transform: translateY(20px); transition: all 1s ease 1s;">ENTER OUR WORLD</button>
   </div>
 
   <div id="main-content" style="opacity: 0; display: none; transition: opacity 0.5s ease;">
@@ -1447,30 +1453,31 @@
       generateStars('hero-stars-container');
 
       // Diya Loader Logic
-      function hideLoader() {
-        if (loader) loader.style.display = 'none';
-        if (mainContent) {
-          mainContent.style.display = 'block';
-          void mainContent.offsetWidth;
-          mainContent.style.opacity = '1';
-          mainContent.style.pointerEvents = 'auto';
-        }
-        document.body.style.overflow = 'auto';
-        if (typeof setActiveFrame === 'function' && window.framesInitialized) setActiveFrame(0);
-      }
+      const screen1 = document.getElementById('screen-1');
+      const screen2 = document.getElementById('screen-2');
+      const btnReveal = document.getElementById('btn-reveal');
+      const btnEnter = document.getElementById('btn-enter');
+      const s1t1 = document.getElementById('s1-t1');
+      const s1t2 = document.getElementById('s1-t2');
+      const s2t1 = document.getElementById('s2-t1');
+      const s2t2 = document.getElementById('s2-t2');
 
-      // Phase 2: Diya Appears (0.5s)
+      // Starting state on page load
+      if(loader) { loader.style.display = 'flex'; loader.style.opacity = '1'; loader.style.zIndex = '999999'; }
+      if(screen1) { screen1.style.display = 'none'; screen1.style.opacity = '0'; screen1.style.zIndex = '9000'; }
+      if(screen2) { screen2.style.display = 'none'; screen2.style.opacity = '0'; screen2.style.zIndex = '8000'; }
+      if(mainContent) { mainContent.style.display = 'block'; mainContent.style.opacity = '0'; mainContent.style.zIndex = '1'; }
+      
+      // Loader Animation Phases
       setTimeout(() => {
         const dc = document.getElementById('diya-container');
         if(dc) dc.classList.add('visible');
       }, 500);
 
-      // Phase 3: Flame Ignites (1.2s)
       setTimeout(() => {
         const fw = document.getElementById('diya-flame-wrapper');
         if(fw) {
           fw.classList.add('ignited');
-          // Flame sparks
           for(let i = 0; i < 12; i++) {
             const spark = document.createElement('div');
             spark.style.cssText = `
@@ -1489,14 +1496,12 @@
         }
       }, 1200);
 
-      // Phase 4: Light Spreads (2s)
       setTimeout(() => {
         const rl = document.getElementById('diya-radial-light');
         if(rl) { rl.style.width = '120vw'; rl.style.height = '120vw'; }
         const bg = document.getElementById('diya-bg');
         if(bg) bg.classList.add('warm');
         
-        // Stars
         const starsContainer = document.getElementById('diya-stars');
         if(starsContainer) {
           for(let i=0; i<80; i++) {
@@ -1508,7 +1513,6 @@
             star.style.left = Math.random() * 100 + '%';
             star.style.top = Math.random() * 100 + '%';
             starsContainer.appendChild(star);
-            
             setTimeout(() => {
               star.style.opacity = 0.3 + Math.random() * 0.5;
             }, Math.random() * 500);
@@ -1516,35 +1520,96 @@
         }
       }, 2000);
 
-      // Phase 5: Text Reveals
+      // Transition from Loader to Screen 1 (4.5s)
       setTimeout(() => {
-        const dc = document.getElementById('diya-container');
-        if(dc) dc.classList.add('moved');
-        const l1 = document.getElementById('diya-line1');
-        if(l1) l1.classList.add('visible');
-      }, 2800);
-      
-      setTimeout(() => {
-        const l2 = document.getElementById('diya-line2');
-        if(l2) l2.classList.add('visible');
-      }, 3100);
-      
-      setTimeout(() => {
-        const l3 = document.getElementById('diya-line3');
-        if(l3) l3.classList.add('visible');
-        const dots = document.getElementById('diya-dots');
-        if(dots) dots.classList.add('visible');
-      }, 3400);
-
-      // Phase 6: Fade Out (4s - 4.5s)
-      setTimeout(() => {
-        if (loader) loader.style.opacity = '0';
-      }, 4000);
-      
-      setTimeout(() => {
-        hideLoader();
+        if(loader) {
+          loader.style.transition = 'opacity 0.5s ease';
+          loader.style.opacity = '0';
+          setTimeout(() => {
+            loader.style.display = 'none';
+            if(screen1) {
+              screen1.style.display = 'flex';
+              void screen1.offsetWidth; // force reflow
+              screen1.style.opacity = '1';
+              
+              setTimeout(() => {
+                if(s1t1) { s1t1.style.opacity = '1'; s1t1.style.transform = 'translateY(0)'; }
+                if(s1t2) { s1t2.style.opacity = '1'; s1t2.style.transform = 'translateY(0)'; }
+                if(btnReveal) { btnReveal.style.opacity = '1'; btnReveal.style.transform = 'translateY(0)'; }
+              }, 500);
+            }
+          }, 500);
+        }
       }, 4500);
 
+    // Screen 1 to Screen 2
+    document.addEventListener('click', (e) => {
+      if (e.target.id === 'btn-reveal') {
+        const screen1 = document.getElementById('screen-1');
+        const screen2 = document.getElementById('screen-2');
+        const s2t1 = document.getElementById('s2-t1');
+        const s2t2 = document.getElementById('s2-t2');
+        const btnEnter = document.getElementById('btn-enter');
+        
+        if(screen1) {
+          screen1.style.opacity = '0';
+          setTimeout(() => {
+            screen1.style.display = 'none';
+            if(screen2) {
+              screen2.style.display = 'flex';
+              void screen2.offsetWidth;
+              screen2.style.opacity = '1';
+
+              setTimeout(() => {
+                if(s2t1) { s2t1.style.opacity = '1'; s2t1.style.transform = 'scale(1)'; }
+                if(s2t2) { s2t2.style.opacity = '1'; s2t2.style.transform = 'translateY(0)'; }
+                if(btnEnter) { btnEnter.style.opacity = '1'; btnEnter.style.transform = 'translateY(0)'; }
+              }, 500);
+            }
+          }, 500);
+        }
+      }
+      
+      // Screen 2 to Main Content
+      if (e.target.id === 'btn-enter') {
+        const screen2 = document.getElementById('screen-2');
+        const mainContent = document.getElementById('main-content');
+        
+        if(screen2) {
+          screen2.style.opacity = '0';
+          setTimeout(() => {
+            screen2.style.display = 'none';
+            if(mainContent) {
+              mainContent.style.display = 'block';
+              void mainContent.offsetWidth;
+              mainContent.style.opacity = '1';
+              mainContent.style.pointerEvents = 'auto';
+              document.body.style.overflow = 'auto';
+              if (typeof setActiveFrame === 'function' && window.framesInitialized) setActiveFrame(0);
+            }
+          }, 500);
+        }
+      }
+    });
+
+    // Custom cursor interactions
+    document.addEventListener('mouseover', (e) => {
+      const cursor = document.getElementById('customCursor');
+      if (cursor && (e.target.id === 'btn-reveal' || e.target.id === 'btn-enter')) {
+        cursor.style.transform = 'scale(2.5)';
+        cursor.style.background = '#fff8e7';
+      }
+    });
+    document.addEventListener('mouseout', (e) => {
+      const cursor = document.getElementById('customCursor');
+      if (cursor && (e.target.id === 'btn-reveal' || e.target.id === 'btn-enter')) {
+        cursor.style.transform = 'scale(1)';
+        cursor.style.background = '#C9A96E';
+      }
+    });
+    
+    // Empty block for previous function definition that is no longer needed but kept for structure
+    // 
       function generateSprockets() {
         const topRow = document.getElementById('top-sprockets');
         const bottomRow = document.getElementById('bottom-sprockets');
@@ -1954,6 +2019,43 @@
       document.getElementById('scrollProgress').style.width = progress + '%';
     });
 
+</script>
+<style>
+@keyframes fallConfetti {
+  0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+.confetti {
+  position: fixed;
+  top: -10px;
+  z-index: 9999;
+  pointer-events: none;
+}
+</style>
+<script>
+function triggerConfetti() {
+  const colors = ['#C9A96E', '#ffffff', '#fff8e7'];
+  const createWave = () => {
+    for (let i = 0; i < 60; i++) {
+      const conf = document.createElement('div');
+      conf.className = 'confetti';
+      conf.style.left = Math.random() * 100 + 'vw';
+      conf.style.width = (Math.random() * 8 + 4) + 'px';
+      conf.style.height = conf.style.width;
+      conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+      conf.style.animation = 'fallConfetti ' + (Math.random() * 2 + 2) + 's linear forwards';
+      document.body.appendChild(conf);
+      setTimeout(() => conf.remove(), 4000);
+    }
+  };
+  createWave();
+  setTimeout(createWave, 600);
+}
+document.addEventListener('click', (e) => {
+  if (e.target.id === 'btn-reveal') {
+    triggerConfetti();
+  }
+});
 </script>
 </body>
 </html>
